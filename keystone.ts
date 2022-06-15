@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { createAuth } from '@keystone-next/auth';
 import { config, createSchema } from '@keystone-next/keystone/schema';
 import 'dotenv/config';
@@ -25,6 +26,11 @@ const { withAuth } = createAuth({
   secretField: 'password',
   initFirstItem: {
     fields: ['name', 'email', 'password'],
+  },
+  passwordResetLink: {
+    async sendToken(args) {
+      console.log(args);
+    },
   },
 });
 
