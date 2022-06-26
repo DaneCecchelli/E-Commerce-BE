@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/require-await */
+import 'dotenv/config';
 import { createAuth } from '@keystone-next/auth';
 import { config, createSchema } from '@keystone-next/keystone/schema';
-import 'dotenv/config';
 import {
   withItemData,
   statelessSessions,
@@ -10,7 +10,14 @@ import {
 import { User } from './schemas/User';
 import { Product } from './schemas/Product';
 import { ProductImage } from './schemas/ProductImage';
+import { CartItem } from './schemas/CartItem';
+import { OrderItem } from './schemas/OrderItem';
+import { Order } from './schemas/Order';
+import { Role } from './schemas/Role';
+
 import { insertSeedData } from './seed-data';
+import { sendPasswordResetEmail } from './lib/mail';
+import { extendGraphQlSchema } from './mutations';
 
 const databaseURL =
   process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
@@ -30,6 +37,7 @@ const { withAuth } = createAuth({
   passwordResetLink: {
     async sendToken(args) {
       console.log(args);
+      await sendPasswordResetEmail(args.token, args.identity);
     },
   },
 });
@@ -53,7 +61,12 @@ export default withAuth(
       User,
       Product,
       ProductImage,
+      CartItem,
+      OrderItem,
+      Order,
+      Role,
     }),
+    extendGraphqlSchema: extendGraphQlSchema,
     ui: {
       // Show the UI only for people who pass this test
       isAccessAllowed: ({ session }) => {
